@@ -31,7 +31,7 @@ namespace RouteDemo.Services
                 var t1 = this.searchProviderOne.IsAvailableAsync(cancellationToken);
                 var t2 = this.searchProviderTwo.IsAvailableAsync(cancellationToken);
                 // Start both task in the same time
-                Task.WaitAll([t1, t2]);
+                await Task.WhenAll(t1, t2);
                 // Check results when complete
                 return await t1 && await t2;
             }
@@ -64,7 +64,7 @@ namespace RouteDemo.Services
                 var t1 = this.RequestProviderOne(requestForCache, cancellationToken);
                 var t2 = this.RequestProviderTwo(requestForCache, cancellationToken);
                 // Start both task in the same time
-                Task.WaitAll([t1, t2]);
+                await Task.WhenAll([t1, t2]);
                 return CombineResults([await t1, await t2]);
             });
         }
@@ -82,7 +82,7 @@ namespace RouteDemo.Services
 
             try
             {
-                var providerResults = await this.searchProviderOne.Search(providerRequest, cancellationToken).ConfigureAwait(false);
+                var providerResults = await this.searchProviderOne.Search(providerRequest, cancellationToken);
                 return new SearchResponse()
                 {
                     MinPrice = providerResults.Routes.Min(r => r.Price),
@@ -120,7 +120,7 @@ namespace RouteDemo.Services
 
             try
             {
-                var providerResults = await this.searchProviderTwo.Search(providerRequest, cancellationToken).ConfigureAwait(false);
+                var providerResults = await this.searchProviderTwo.Search(providerRequest, cancellationToken);
                 return new SearchResponse()
                 {
                     MinPrice = providerResults.Routes.Min(r => r.Price),
@@ -194,7 +194,7 @@ namespace RouteDemo.Services
         {
             var item = await this.genericCache.GetOrCreateAsync(key, async (c) => {
                 c.SetAbsoluteExpiration(this.defaultCacheDuration);
-                return await executeIfNotFoundInCache.Invoke().ConfigureAwait(false);
+                return await executeIfNotFoundInCache.Invoke();
             });
 
             return item;
